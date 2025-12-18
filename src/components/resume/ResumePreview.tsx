@@ -3,10 +3,12 @@ import { ModernTemplate } from './templates/ModernTemplate';
 import { ClassicTemplate } from './templates/ClassicTemplate';
 import { CreativeTemplate } from './templates/CreativeTemplate';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, FileCode, Printer } from 'lucide-react';
+import { Download, FileCode, Printer, FileText } from 'lucide-react';
 import { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
+import { saveAs } from 'file-saver';
 import { toast } from '@/hooks/use-toast';
 
 interface ResumePreviewProps {
@@ -65,6 +67,196 @@ export function ResumePreview({ data, settings, onTemplateChange }: ResumePrevie
       toast({ title: 'PDF Downloaded!', description: 'Your resume has been saved.' });
     } catch (error) {
       toast({ title: 'Export Failed', description: 'There was an error generating the PDF.', variant: 'destructive' });
+    }
+  };
+
+  const exportToDocx = async () => {
+    toast({ title: 'Generating DOCX...', description: 'Please wait while we create your resume.' });
+
+    try {
+      const children: Paragraph[] = [];
+
+      // Name
+      if (data.personalInfo.fullName) {
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: data.personalInfo.fullName, bold: true, size: 32 })],
+            heading: HeadingLevel.HEADING_1,
+            alignment: AlignmentType.CENTER,
+          })
+        );
+      }
+
+      // Contact info
+      const contactParts = [
+        data.personalInfo.email,
+        data.personalInfo.phone,
+        data.personalInfo.location,
+      ].filter(Boolean);
+      
+      if (contactParts.length > 0) {
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: contactParts.join(' | '), size: 20 })],
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 200 },
+          })
+        );
+      }
+
+      // Summary
+      if (data.personalInfo.summary) {
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: 'PROFESSIONAL SUMMARY', bold: true, size: 24 })],
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 100 },
+          }),
+          new Paragraph({
+            children: [new TextRun({ text: data.personalInfo.summary, size: 22 })],
+            spacing: { after: 200 },
+          })
+        );
+      }
+
+      // Experience
+      if (data.experiences.length > 0) {
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: 'EXPERIENCE', bold: true, size: 24 })],
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 100 },
+          })
+        );
+
+        data.experiences.forEach((exp) => {
+          children.push(
+            new Paragraph({
+              children: [
+                new TextRun({ text: exp.position, bold: true, size: 22 }),
+                new TextRun({ text: ` at ${exp.company}`, size: 22 }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ 
+                  text: `${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}`, 
+                  italics: true, 
+                  size: 20 
+                }),
+              ],
+              spacing: { after: 100 },
+            })
+          );
+
+          if (exp.description) {
+            children.push(
+              new Paragraph({
+                children: [new TextRun({ text: exp.description, size: 22 })],
+                spacing: { after: 100 },
+              })
+            );
+          }
+
+          exp.achievements.filter(a => a).forEach((achievement) => {
+            children.push(
+              new Paragraph({
+                children: [new TextRun({ text: `• ${achievement}`, size: 22 })],
+                indent: { left: 360 },
+              })
+            );
+          });
+        });
+      }
+
+      // Education
+      if (data.education.length > 0) {
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: 'EDUCATION', bold: true, size: 24 })],
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 100 },
+          })
+        );
+
+        data.education.forEach((edu) => {
+          children.push(
+            new Paragraph({
+              children: [
+                new TextRun({ text: `${edu.degree} in ${edu.field}`, bold: true, size: 22 }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: edu.institution, size: 22 }),
+                new TextRun({ text: ` | ${edu.startDate} - ${edu.endDate}`, italics: true, size: 20 }),
+              ],
+              spacing: { after: 100 },
+            })
+          );
+        });
+      }
+
+      // Skills
+      if (data.skills.length > 0) {
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: 'SKILLS', bold: true, size: 24 })],
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 100 },
+          }),
+          new Paragraph({
+            children: [new TextRun({ text: data.skills.map(s => s.name).join(', '), size: 22 })],
+            spacing: { after: 200 },
+          })
+        );
+      }
+
+      // Projects
+      if (data.projects.length > 0) {
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: 'PROJECTS', bold: true, size: 24 })],
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 100 },
+          })
+        );
+
+        data.projects.forEach((proj) => {
+          children.push(
+            new Paragraph({
+              children: [new TextRun({ text: proj.name, bold: true, size: 22 })],
+            }),
+            new Paragraph({
+              children: [new TextRun({ text: proj.description, size: 22 })],
+              spacing: { after: 50 },
+            })
+          );
+          
+          if (proj.technologies.length > 0) {
+            children.push(
+              new Paragraph({
+                children: [new TextRun({ text: `Technologies: ${proj.technologies.join(', ')}`, italics: true, size: 20 })],
+                spacing: { after: 100 },
+              })
+            );
+          }
+        });
+      }
+
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children,
+        }],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, `${data.personalInfo.fullName || 'resume'}_resume.docx`);
+      
+      toast({ title: 'DOCX Downloaded!', description: 'Your resume has been saved as a Word document.' });
+    } catch (error) {
+      toast({ title: 'Export Failed', description: 'There was an error generating the DOCX.', variant: 'destructive' });
     }
   };
 
@@ -128,6 +320,10 @@ export function ResumePreview({ data, settings, onTemplateChange }: ResumePrevie
         <Button onClick={exportToPDF} variant="accent" size="sm">
           <Download className="w-4 h-4 mr-2" />
           PDF
+        </Button>
+        <Button onClick={exportToDocx} variant="outline" size="sm">
+          <FileText className="w-4 h-4 mr-2" />
+          DOCX
         </Button>
         <Button onClick={exportToHTML} variant="outline" size="sm">
           <FileCode className="w-4 h-4 mr-2" />
