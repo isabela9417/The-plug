@@ -305,7 +305,7 @@ const Index = () => {
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </>
                   ) : (
-                    canComplete ? 'Complete & Download' : 'Complete Job Match (50%+)'
+                    'Complete'
                   )}
                 </Button>
               </div>
