@@ -11,6 +11,7 @@ import { ProjectsForm } from '@/components/resume/ProjectsForm';
 import { TargetJobForm } from '@/components/resume/TargetJobForm';
 import { ResumePreview } from '@/components/resume/ResumePreview';
 import { ATSChecker } from '@/components/resume/ATSChecker';
+import { JobMatchingAnalysis } from '@/components/resume/JobMatchingAnalysis';
 import { 
   FileText, 
   User, 
@@ -23,7 +24,8 @@ import {
   CheckSquare,
   Sparkles,
   ArrowRight,
-  LayoutTemplate
+  LayoutTemplate,
+  Search
 } from 'lucide-react';
 
 const Index = () => {
@@ -51,6 +53,7 @@ const Index = () => {
     { id: 'skills', label: 'Skills', icon: Zap },
     { id: 'projects', label: 'Projects', icon: FolderGit2 },
     { id: 'ats', label: 'ATS Check', icon: CheckSquare },
+    { id: 'jobmatch', label: 'Job Match', icon: Search },
   ];
 
   const currentTabIndex = tabs.findIndex(t => t.id === activeTab);
@@ -110,7 +113,7 @@ const Index = () => {
           <div className={showPreview ? '' : ''}>
             <Card className="p-6 shadow-card">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-4 lg:grid-cols-7 gap-1 mb-6 h-auto p-1 bg-muted/50">
+                <TabsList className="grid grid-cols-4 lg:grid-cols-8 gap-1 mb-6 h-auto p-1 bg-muted/50">
                   {tabs.map((tab) => (
                     <TabsTrigger
                       key={tab.id}
@@ -197,6 +200,14 @@ const Index = () => {
                     <p className="text-sm text-muted-foreground">Optimize your resume for applicant tracking systems</p>
                   </div>
                   <ATSChecker data={resumeData} />
+                </TabsContent>
+
+                <TabsContent value="jobmatch" className="mt-0">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold">Job Description Matching</h3>
+                    <p className="text-sm text-muted-foreground">Analyze how well your resume matches a specific job posting</p>
+                  </div>
+                  <JobMatchingAnalysis data={resumeData} />
                 </TabsContent>
               </Tabs>
 
