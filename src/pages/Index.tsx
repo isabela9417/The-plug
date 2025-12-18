@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useResumeData } from '@/hooks/useResumeData';
+import { useDailyLimit } from '@/hooks/useDailyLimit';
 import { PersonalInfoForm } from '@/components/resume/PersonalInfoForm';
 import { ExperienceForm } from '@/components/resume/ExperienceForm';
 import { EducationForm } from '@/components/resume/EducationForm';
@@ -12,8 +13,9 @@ import { TargetJobForm } from '@/components/resume/TargetJobForm';
 import { ResumePreview } from '@/components/resume/ResumePreview';
 import { ATSChecker } from '@/components/resume/ATSChecker';
 import { JobMatchingAnalysis } from '@/components/resume/JobMatchingAnalysis';
+import { toast } from 'sonner';
 import { 
-  FileText, 
+  Plug, 
   User, 
   Briefcase, 
   GraduationCap, 
@@ -42,8 +44,11 @@ const Index = () => {
     updateTargetIndustry,
   } = useResumeData();
 
+  const { canGenerate, remaining, incrementUsage, dailyLimit } = useDailyLimit();
   const [activeTab, setActiveTab] = useState('target');
   const [showPreview, setShowPreview] = useState(false);
+  const [showLanding, setShowLanding] = useState(true);
+  const [jobMatchScore, setJobMatchScore] = useState<number | null>(null);
 
   const tabs = [
     { id: 'target', label: 'Target Job', icon: Target },
@@ -60,21 +65,102 @@ const Index = () => {
   const nextTab = tabs[currentTabIndex + 1];
   const prevTab = tabs[currentTabIndex - 1];
 
+  const handleComplete = () => {
+    if (!canGenerate) {
+      toast.error(`Daily limit reached! You can generate ${dailyLimit} CVs per day. Try again tomorrow.`);
+      return;
+    }
+    if (jobMatchScore === null || jobMatchScore < 50) {
+      toast.error('Please complete Job Match analysis and achieve at least 50% score to download your CV.');
+      return;
+    }
+    incrementUsage();
+    setShowPreview(true);
+    toast.success(`CV completed! You have ${remaining - 1} generations remaining today.`);
+  };
+
+  const canComplete = jobMatchScore !== null && jobMatchScore >= 50;
+
+  // Landing page
+  if (showLanding) {
+    return (
+      <div className="min-h-screen gradient-hero">
+        <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setShowLanding(true)}>
+              <div className="gradient-primary p-2 rounded-lg">
+                <Plug className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="font-display font-bold text-xl">The plug</h1>
+                <p className="text-xs text-muted-foreground">AI-Powered Resume Builder</p>
+              </div>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {remaining}/{dailyLimit} CVs remaining today
+            </div>
+          </div>
+        </header>
+        
+        <main className="container mx-auto px-4 py-16">
+          <div className="text-center max-w-3xl mx-auto animate-fade-in">
+            <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <Sparkles className="w-4 h-4" />
+              AI-Powered Resume Generation
+            </div>
+            <h2 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-4 text-balance">
+              Create Your Perfect Resume
+              <br />
+              <span className="text-accent">in Minutes</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+              Build ATS-friendly resumes with AI-powered content suggestions, 
+              multiple professional templates, and real-time optimization tips.
+            </p>
+            <Button 
+              variant="hero" 
+              size="lg" 
+              onClick={() => setShowLanding(false)}
+              disabled={!canGenerate}
+            >
+              {canGenerate ? (
+                <>
+                  Get Started
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </>
+              ) : (
+                'Daily limit reached - Try tomorrow'
+              )}
+            </Button>
+            {!canGenerate && (
+              <p className="text-sm text-destructive mt-4">
+                You've used all {dailyLimit} CV generations for today.
+              </p>
+            )}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen gradient-hero">
       {/* Header */}
       <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setShowLanding(true)}>
             <div className="gradient-primary p-2 rounded-lg">
-              <FileText className="w-6 h-6 text-primary-foreground" />
+              <Plug className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="font-display font-bold text-xl">ResumeAI</h1>
+              <h1 className="font-display font-bold text-xl">The plug</h1>
               <p className="text-xs text-muted-foreground">AI-Powered Resume Builder</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground hidden sm:inline">
+              {remaining}/{dailyLimit} CVs remaining
+            </span>
             <Button
               variant={showPreview ? 'default' : 'outline'}
               onClick={() => setShowPreview(!showPreview)}
@@ -88,24 +174,6 @@ const Index = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Section - Only show on first visit or empty state */}
-        {!resumeData.personalInfo.fullName && activeTab === 'target' && (
-          <div className="text-center mb-12 animate-fade-in">
-            <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
-              AI-Powered Resume Generation
-            </div>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4 text-balance">
-              Create Your Perfect Resume
-              <br />
-              <span className="text-accent">in Minutes</span>
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Build ATS-friendly resumes with AI-powered content suggestions, 
-              multiple professional templates, and real-time optimization tips.
-            </p>
-          </div>
-        )}
 
         {/* Main Content */}
         <div className={`grid gap-8 ${showPreview ? 'lg:grid-cols-2' : 'lg:grid-cols-1 max-w-4xl mx-auto'}`}>
@@ -207,7 +275,7 @@ const Index = () => {
                     <h3 className="text-lg font-semibold">Job Description Matching</h3>
                     <p className="text-sm text-muted-foreground">Analyze how well your resume matches a specific job posting</p>
                   </div>
-                  <JobMatchingAnalysis data={resumeData} />
+                  <JobMatchingAnalysis data={resumeData} onScoreChange={setJobMatchScore} />
                 </TabsContent>
               </Tabs>
 
@@ -222,8 +290,14 @@ const Index = () => {
                 </Button>
                 <Button
                   variant="accent"
-                  onClick={() => nextTab && setActiveTab(nextTab.id)}
-                  disabled={!nextTab}
+                  onClick={() => {
+                    if (nextTab) {
+                      setActiveTab(nextTab.id);
+                    } else {
+                      handleComplete();
+                    }
+                  }}
+                  disabled={!nextTab && !canComplete}
                 >
                   {nextTab ? (
                     <>
@@ -231,7 +305,7 @@ const Index = () => {
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </>
                   ) : (
-                    'Complete'
+                    canComplete ? 'Complete & Download' : 'Complete Job Match (50%+)'
                   )}
                 </Button>
               </div>

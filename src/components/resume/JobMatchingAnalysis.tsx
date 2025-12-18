@@ -8,6 +8,7 @@ import { Search, CheckCircle2, XCircle, AlertCircle, Sparkles } from 'lucide-rea
 
 interface JobMatchingAnalysisProps {
   data: ResumeData;
+  onScoreChange?: (score: number) => void;
 }
 
 interface MatchResult {
@@ -17,7 +18,7 @@ interface MatchResult {
   suggestions: string[];
 }
 
-export function JobMatchingAnalysis({ data }: JobMatchingAnalysisProps) {
+export function JobMatchingAnalysis({ data, onScoreChange }: JobMatchingAnalysisProps) {
   const [jobDescription, setJobDescription] = useState('');
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -136,6 +137,7 @@ export function JobMatchingAnalysis({ data }: JobMatchingAnalysisProps) {
         suggestions,
       });
       
+      onScoreChange?.(score);
       setIsAnalyzing(false);
     }, 800);
   };
