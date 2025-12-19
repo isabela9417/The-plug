@@ -1,73 +1,74 @@
-# Welcome to your Lovable project
+# AI Resume Builder & Career Optimizer
+A React-based intelligent resume generation system designed to help users create ATS-friendly resumes. This application uses Generative AI to analyze job descriptions and tailor user experience to match specific industry keywords.
 
-## Project info
+Group Project  - Hertech Hive
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+# 🚀 Technologies Used
+Frontend: React (Vite), TypeScript
 
-## How can I edit this code?
+Styling: Tailwind CSS, Shadcn UI
 
-There are several ways of editing your application.
+AI Integration: Vercel AI SDK / OpenAI API
 
-**Use Lovable**
+State Management: React Hooks & Context
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Persistence: Browser LocalStorage (Privacy-first architecture)
 
-Changes made via Lovable will be committed automatically to this repo.
+# 🛠️ Setup & Installation Instructions
+Follow these steps to run the application locally on your machine.
 
-**Use your preferred IDE**
+1. Prerequisites
+Ensure you have Node.js (v18 or higher) and npm installed.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Download Node.js
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. Clone the Repository
+Open your terminal and run the following commands to download the project:
 
-Follow these steps:
+Bash
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Clone the repository
+git clone <YOUR_GITHUB_REPO_URL_HERE>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate into the project directory
+cd <YOUR_PROJECT_FOLDER_NAME>
+3. Install Dependencies
+Install the required packages (React, Tailwind, AI SDK, etc.):
 
-# Step 3: Install the necessary dependencies.
-npm i
+Bash
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
+4. Configuration (API Keys)
+This project requires an OpenAI API key to power the AI features (Resume Generation & ATS Scoring).
+
+Create a file named .env in the root directory of the project.
+
+Copy the content below into the file:
+
+Code snippet
+
+# Get your key from https://platform.openai.com/api-keys
+VITE_OPENAI_API_KEY=your_sk_key_starts_with_sk-...
+(Note: If you are using the Client-Side "Bring Your Own Key" mode we built, you can skip this step, as the app will ask for the key in the UI settings).
+
+5. Run the Local Server
+Start the development server:
+
+Bash
+
 npm run dev
-```
+The terminal will show a local URL (usually http://localhost:8080 or http://localhost:5173).
 
-**Edit a file directly in GitHub**
+Open that link in your browser to view the app.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+📝 Usage Guide
+Dashboard: Navigate to the main dashboard to see your application history.
 
-**Use GitHub Codespaces**
+Builder: Click "New Application" to start the 3-step wizard.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Export: On the preview screen, click "Export PDF" to generate the final ATS-friendly document.
 
-## What technologies are used for this project?
+⚠️ Troubleshooting
+Build Errors: If npm install fails, try deleting the node_modules folder and package-lock.json file, then run npm install again.
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+AI Not Working: Ensure your API key has credits and is correctly pasted in the .env file or the App Settings modal.
