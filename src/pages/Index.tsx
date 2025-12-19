@@ -13,6 +13,7 @@ import { TargetJobForm } from '@/components/resume/TargetJobForm';
 import { ResumePreview } from '@/components/resume/ResumePreview';
 import { ATSChecker } from '@/components/resume/ATSChecker';
 import { JobMatchingAnalysis } from '@/components/resume/JobMatchingAnalysis';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { toast } from 'sonner';
 import { 
   Plug, 
@@ -27,7 +28,10 @@ import {
   Sparkles,
   ArrowRight,
   LayoutTemplate,
-  Search
+  Search,
+  FileCheck,
+  Brain,
+  Rocket
 } from 'lucide-react';
 
 const Index = () => {
@@ -81,10 +85,34 @@ const Index = () => {
 
   const canComplete = jobMatchScore !== null && jobMatchScore >= 50;
 
+  const features = [
+    {
+      icon: FileCheck,
+      title: "ATS-Optimized",
+      description: "Pass applicant tracking systems with our intelligent formatting and keyword optimization."
+    },
+    {
+      icon: Brain,
+      title: "AI-Powered",
+      description: "Smart suggestions and content improvements powered by advanced AI technology."
+    },
+    {
+      icon: Rocket,
+      title: "Job Matching",
+      description: "Analyze how well your resume matches specific job descriptions in real-time."
+    }
+  ];
+
   // Landing page
   if (showLanding) {
     return (
-      <div className="min-h-screen gradient-hero">
+      <div className="min-h-screen bg-background">
+        {/* Decorative background */}
+        <div className="fixed inset-0 -z-10 overflow-hidden">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        </div>
+
         <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => setShowLanding(true)}>
@@ -96,55 +124,108 @@ const Index = () => {
                 <p className="text-xs text-muted-foreground">AI-Powered Resume Builder</p>
               </div>
             </div>
-            <div className="text-sm text-muted-foreground">
-              {remaining}/{dailyLimit} CVs remaining today
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground hidden sm:inline">
+                {remaining}/{dailyLimit} CVs remaining
+              </span>
+              <ThemeToggle />
             </div>
           </div>
         </header>
         
-        <main className="container mx-auto px-4 py-16">
-          <div className="text-center max-w-3xl mx-auto animate-fade-in">
-            <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-6">
+        <main className="container mx-auto px-4 py-16 md:py-24">
+          {/* Hero Section */}
+          <div className="text-center max-w-4xl mx-auto animate-fade-in">
+            <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-6 border border-accent/20">
               <Sparkles className="w-4 h-4" />
               AI-Powered Resume Generation
             </div>
-            <h2 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-4 text-balance">
+            <h2 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 text-balance leading-tight">
               Create Your Perfect Resume
               <br />
-              <span className="text-accent">in Minutes</span>
+              <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">in Minutes</span>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
               Build ATS-friendly resumes with AI-powered content suggestions, 
               multiple professional templates, and real-time optimization tips.
             </p>
-            <Button 
-              variant="hero" 
-              size="lg" 
-              onClick={() => setShowLanding(false)}
-              disabled={!canGenerate}
-            >
-              {canGenerate ? (
-                <>
-                  Get Started
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </>
-              ) : (
-                'Daily limit reached - Try tomorrow'
-              )}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                variant="hero" 
+                size="lg" 
+                onClick={() => setShowLanding(false)}
+                disabled={!canGenerate}
+                className="text-lg px-8 py-6 animate-pulse-glow"
+              >
+                {canGenerate ? (
+                  <>
+                    Get Started Free
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </>
+                ) : (
+                  'Daily limit reached - Try tomorrow'
+                )}
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                No signup required • {dailyLimit} free CVs daily
+              </p>
+            </div>
             {!canGenerate && (
               <p className="text-sm text-destructive mt-4">
                 You've used all {dailyLimit} CV generations for today.
               </p>
             )}
           </div>
+
+          {/* Features Section */}
+          <div className="mt-24 md:mt-32">
+            <h3 className="text-center text-2xl md:text-3xl font-display font-bold mb-12">
+              Everything you need to land your dream job
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6 stagger-children">
+              {features.map((feature, index) => (
+                <Card key={index} className="p-6 bg-card/50 backdrop-blur-sm border border-border/50 hover:border-accent/50 transition-all hover:shadow-glow group">
+                  <div className="w-12 h-12 rounded-xl gradient-accent flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <feature.icon className="w-6 h-6 text-accent-foreground" />
+                  </div>
+                  <h4 className="font-display font-semibold text-lg mb-2">{feature.title}</h4>
+                  <p className="text-muted-foreground text-sm">{feature.description}</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Stats Section */}
+          <div className="mt-24 md:mt-32 text-center">
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+              <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                <div className="text-3xl md:text-4xl font-bold text-accent">3+</div>
+                <div className="text-sm text-muted-foreground mt-1">Templates</div>
+              </div>
+              <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <div className="text-3xl md:text-4xl font-bold text-accent">100%</div>
+                <div className="text-sm text-muted-foreground mt-1">ATS Compatible</div>
+              </div>
+              <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                <div className="text-3xl md:text-4xl font-bold text-accent">Free</div>
+                <div className="text-sm text-muted-foreground mt-1">To Use</div>
+              </div>
+            </div>
+          </div>
         </main>
+
+        {/* Footer */}
+        <footer className="border-t mt-24 py-8">
+          <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+            © 2024 The plug. Build your future, one resume at a time.
+          </div>
+        </footer>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen gradient-hero">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -169,6 +250,7 @@ const Index = () => {
               {showPreview ? <LayoutTemplate className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
               {showPreview ? 'Edit Mode' : 'Preview'}
             </Button>
+            <ThemeToggle />
           </div>
         </div>
       </header>
